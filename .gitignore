@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# VSCode workspace storage (개인정보 포함 가능)
+**/globalStorage/
+**/workspaceStorage/
+**/User/workspaceStorage/
+
+# 임시 파일
+*.tmp
+*.log
+
+# 개인정보가 포함될 수 있는 파일
+secrets.json
+*.secret
