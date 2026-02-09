@@ -15,23 +15,35 @@
 
 ## 🚀 새로운 맥북에서 설정 적용하기
 
-### 1단계: 저장소 클론
+### VSCode 설치
 
 ```bash
+# 1. 저장소 클론
 cd ~
-git clone https://github.com/YOUR_USERNAME/dotfiles.git
-```
+git clone https://github.com/jay-swk/dotfiles.git
 
-### 2단계: 설치 스크립트 실행
-
-```bash
+# 2. 설치 스크립트 실행
 chmod +x ~/dotfiles/install.sh
 ~/dotfiles/install.sh
+
+# 3. VSCode 재시작
 ```
 
-### 3단계: VSCode 재시작
+### Google Antigravity 설치
 
-설정이 적용되도록 VSCode를 재시작합니다.
+```bash
+# 1. 저장소 클론 (이미 했다면 생략)
+cd ~
+git clone https://github.com/jay-swk/dotfiles.git
+
+# 2. Antigravity 설치 스크립트 실행
+chmod +x ~/dotfiles/install-antigravity.sh
+~/dotfiles/install-antigravity.sh
+
+# 3. 에디터 재시작
+```
+
+📖 **자세한 가이드**: [ANTIGRAVITY.md](ANTIGRAVITY.md) 참고
 
 ## 🔄 설정 업데이트하기 (원본 맥북)
 
