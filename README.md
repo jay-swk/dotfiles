@@ -1,135 +1,77 @@
-# Dotfiles - VSCode 설정
+# Dotfiles
 
-개인 VSCode 개발 환경 설정을 관리하는 저장소입니다.
+개인 개발 환경 설정 — 새 맥북에서 한 줄로 복원.
 
-## 📦 포함된 내용
+## 포함 내용
 
-- **VSCode 확장 (35개)**
-  - Claude Code, GitHub Copilot
-  - Prettier, ESLint
-  - Docker, Terraform
-  - React, TypeScript, Python 개발 도구
-- **VSCode 설정 파일**
-  - settings.json (에디터 설정)
-  - keybindings.json (키보드 단축키)
+| 카테고리 | 내용 |
+|---------|------|
+| **터미널** | tmux (Dracula), starship 프롬프트, bash 도구 alias |
+| **CLI 도구** | eza, bat, fd, fzf, ripgrep, delta, lazygit, btop, dust, zoxide, yazi |
+| **VSCode** | settings.json, keybindings.json, 확장 35개 |
+| **Claude Code** | settings.json, statusline (이모지 게이지 + tmux 연동) |
+| **Antigravity** | Google Antigravity 에디터 확장 |
 
-## 🚀 새로운 맥북에서 설정 적용하기
-
-### VSCode 설치
+## 새 맥북 설정
 
 ```bash
-# 1. 저장소 클론
-cd ~
-git clone https://github.com/jay-swk/dotfiles.git
+# 1. 클론
+git clone https://github.com/jay-swk/dotfiles.git ~/dotfiles
 
-# 2. 설치 스크립트 실행
-chmod +x ~/dotfiles/install.sh
-~/dotfiles/install.sh
+# 2. 전체 CLI 도구 + 터미널 환경 구축
+bash ~/dotfiles/bootstrap.sh
 
-# 3. VSCode 재시작
+# 3. VSCode + Claude Code 설정 적용
+bash ~/dotfiles/install.sh
 ```
 
-### Google Antigravity 설치
+## 설정 업데이트 (원본 맥북)
 
 ```bash
-# 1. 저장소 클론 (이미 했다면 생략)
-cd ~
-git clone https://github.com/jay-swk/dotfiles.git
-
-# 2. Antigravity 설치 스크립트 실행
-chmod +x ~/dotfiles/install-antigravity.sh
-~/dotfiles/install-antigravity.sh
-
-# 3. 에디터 재시작
+bash ~/dotfiles/update.sh
 ```
 
-📖 **자세한 가이드**: [ANTIGRAVITY.md](ANTIGRAVITY.md) 참고
-
-## 🔄 설정 업데이트하기 (원본 맥북)
-
-VSCode 설정이나 확장을 변경한 후:
+## 다른 맥북에서 동기화
 
 ```bash
-cd ~/dotfiles
-
-# 확장 목록 업데이트
-code --list-extensions > vscode/extensions.txt
-
-# 설정 파일 업데이트 (필요시)
-cp "$HOME/Library/Application Support/Code/User/settings.json" vscode/
-cp "$HOME/Library/Application Support/Code/User/keybindings.json" vscode/ 2>/dev/null
-
-# Git 커밋 및 푸시
-git add .
-git commit -m "Update VSCode settings"
-git push
+cd ~/dotfiles && git pull && ./install.sh
 ```
 
-## 📥 다른 맥북에서 동기화하기
+## 파일 구조
 
-```bash
-cd ~/dotfiles
-git pull
-./install.sh
+```
+dotfiles/
+├── bootstrap.sh        # CLI 도구 설치 + 터미널 설정 (메인)
+├── install.sh          # VSCode + Claude Code 설정 복사
+├── update.sh           # 현재 설정 → dotfiles 내보내기
+├── bashrc_append.sh    # .bashrc 추가 설정 (alias, fzf, zoxide 등)
+├── tmux.conf           # tmux 설정 (Dracula, 마우스, vi 모드)
+├── starship.toml       # 프롬프트 설정
+├── claude/
+│   ├── settings.json   # Claude Code 설정
+│   └── statusline.sh   # 상태바 (이모지 게이지 + 비용 + 5h rate)
+├── vscode/
+│   ├── settings.json   # VSCode 에디터 설정
+│   └── extensions.txt  # 확장 목록
+├── install-antigravity.sh
+└── ANTIGRAVITY.md
 ```
 
-## 💡 유용한 팁
+## Claude Code 상태바 미리보기
 
-### 빠른 업데이트 alias
-
-`.zshrc`나 `.bashrc`에 추가:
-
-```bash
-alias dotfiles-update='cd ~/dotfiles && code --list-extensions > vscode/extensions.txt && cp "$HOME/Library/Application Support/Code/User/settings.json" vscode/ 2>/dev/null && git add . && git commit -m "Update settings" && git push'
+```
+🧠 Opus 4.6 ┃ 🟢 ██░░░ 35% ┃ 📊 ↑234K ↓89K ┃ 💰 $1.23 ┃ ⏱️ 🟢 5h:12%
 ```
 
-이제 `dotfiles-update` 명령어로 한 번에 동기화!
+| 항목 | 설명 |
+|------|------|
+| 🧠 모델 | 현재 사용 중인 모델 |
+| 🟢/🟡/🔴 게이지 | 컨텍스트 윈도우 사용률 (50%↑ 노랑, 80%↑ 빨강) |
+| 📊 토큰 | 입출력 토큰 (K 단위) |
+| 💰 비용 | API 환산 비용 (구독 포함, 참고용) |
+| ⏱️ 5h | 5시간 rate limit 사용률 |
 
-### Claude Code 설정도 함께 관리하려면
+## 지원 OS
 
-```bash
-mkdir -p ~/dotfiles/claude
-cp ~/.claude/keybindings.json ~/dotfiles/claude/ 2>/dev/null
-
-# install.sh에 추가:
-# cp ~/dotfiles/claude/keybindings.json ~/.claude/
-```
-
-## 📋 설치된 확장 목록
-
-총 35개의 확장이 포함되어 있습니다:
-
-- anthropic.claude-code
-- github.copilot
-- github.copilot-chat
-- esbenp.prettier-vscode
-- dbaeumer.vscode-eslint
-- docker.docker
-- ms-azuretools.vscode-docker
-- hashicorp.terraform
-- 그 외 27개...
-
-전체 목록은 [vscode/extensions.txt](vscode/extensions.txt) 참조.
-
-## 🛠 문제 해결
-
-### VSCode 경로가 다른 경우 (Cursor 등)
-
-install.sh의 `VSCODE_USER_DIR` 변수를 수정:
-
-```bash
-# Cursor
-VSCODE_USER_DIR="$HOME/Library/Application Support/Cursor/User"
-```
-
-### 확장 설치 실패
-
-확장이 설치되지 않는 경우 수동으로 설치:
-
-```bash
-code --install-extension EXTENSION_ID
-```
-
-## 📝 라이선스
-
-개인 사용 목적
+- macOS (Homebrew)
+- Ubuntu / Debian (apt)
