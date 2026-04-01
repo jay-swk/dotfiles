@@ -6,7 +6,7 @@ echo "🚀 개발 환경 동기화 시작..."
 
 # ─── VSCode ─────────────────────────────────────────────
 echo ""
-echo "📦 [1/2] VSCode 설정"
+echo "📦 [1/3] VSCode 설정"
 
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
 mkdir -p "$VSCODE_USER_DIR/snippets"
@@ -41,7 +41,7 @@ fi
 
 # ─── Claude Code ────────────────────────────────────────
 echo ""
-echo "🤖 [2/2] Claude Code 설정"
+echo "🤖 [2/3] Claude Code 설정"
 
 CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
@@ -64,6 +64,29 @@ fi
 if [ -f "$HOME/dotfiles/claude/keybindings.json" ]; then
     echo "  📁 keybindings.json 복사"
     cp "$HOME/dotfiles/claude/keybindings.json" "$CLAUDE_DIR/keybindings.json"
+fi
+
+if [ -f "$HOME/dotfiles/claude/mcp-auth-guard.sh" ]; then
+    echo "  📁 mcp-auth-guard.sh 복사"
+    cp "$HOME/dotfiles/claude/mcp-auth-guard.sh" "$CLAUDE_DIR/mcp-auth-guard.sh"
+    chmod +x "$CLAUDE_DIR/mcp-auth-guard.sh"
+fi
+
+if [ -f "$HOME/dotfiles/claude/setup-ecosystem.sh" ]; then
+    echo "  📁 setup-ecosystem.sh 복사"
+    cp "$HOME/dotfiles/claude/setup-ecosystem.sh" "$CLAUDE_DIR/setup-ecosystem.sh"
+    chmod +x "$CLAUDE_DIR/setup-ecosystem.sh"
+fi
+
+# ─── Claude Code Ecosystem ─────────────────────────────
+echo ""
+echo "🔌 [3/3] Claude Code 플러그인 + MCP 생태계"
+
+if command -v claude &>/dev/null; then
+    bash "$CLAUDE_DIR/setup-ecosystem.sh"
+else
+    echo "  ⚠️  Claude Code 미설치 — 설치 후 아래 명령 실행:"
+    echo "     bash ~/.claude/setup-ecosystem.sh"
 fi
 
 echo ""

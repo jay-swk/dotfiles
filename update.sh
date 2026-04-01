@@ -19,6 +19,8 @@ mkdir -p "$DOTFILES/claude"
 cp "$HOME/.claude/settings.json" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/statusline.sh" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/keybindings.json" "$DOTFILES/claude/" 2>/dev/null || true
+cp "$HOME/.claude/setup-ecosystem.sh" "$DOTFILES/claude/" 2>/dev/null || true
+cp "$HOME/.claude/mcp-auth-guard.sh" "$DOTFILES/claude/" 2>/dev/null || true
 
 echo ""
 cd "$DOTFILES"

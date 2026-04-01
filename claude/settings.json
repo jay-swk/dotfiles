@@ -20,7 +20,16 @@
   "enabledPlugins": {
     "figma@claude-plugins-official": true,
     "nova@nova-marketplace": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "context7@claude-plugins-official": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash ~/.claude/mcp-auth-guard.sh"
+      }
+    ]
   },
   "extraKnownMarketplaces": {
     "nova-marketplace": {
