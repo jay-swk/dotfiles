@@ -212,20 +212,25 @@ import json
 with open("$settings_file") as f:
     settings = json.load(f)
 
-# hooks.SessionStart 배열에 가드 추가
+# hooks.SessionStart: matcher + hooks 배열 구조
 hooks = settings.setdefault("hooks", {})
 session_hooks = hooks.setdefault("SessionStart", [])
 
-guard_entry = {
+guard_hook = {
     "type": "command",
     "command": "bash ~/.claude/mcp-auth-guard.sh"
 }
 
+guard_entry = {
+    "matcher": "",
+    "hooks": [guard_hook]
+}
+
 # 이미 등록되어 있으면 스킵
 already = any(
-    h.get("command", "").endswith("mcp-auth-guard.sh")
-    for h in session_hooks
-    if isinstance(h, dict)
+    any(h.get("command", "").endswith("mcp-auth-guard.sh") for h in entry.get("hooks", []))
+    for entry in session_hooks
+    if isinstance(entry, dict)
 )
 
 if not already:

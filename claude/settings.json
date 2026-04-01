@@ -26,8 +26,13 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "bash ~/.claude/mcp-auth-guard.sh"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/mcp-auth-guard.sh"
+          }
+        ]
       }
     ]
   },
