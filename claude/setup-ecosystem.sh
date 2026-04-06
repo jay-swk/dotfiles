@@ -38,7 +38,6 @@ install_plugins() {
   # 마켓플레이스 등록
   local marketplaces=(
     "nova-marketplace:TeamSPWK/nova"
-    "openai-codex:openai/codex-plugin-cc"
   )
 
   for entry in "${marketplaces[@]}"; do
@@ -58,7 +57,6 @@ install_plugins() {
     "nova@nova-marketplace"
     "figma@claude-plugins-official"
     "context7@claude-plugins-official"
-    "codex@openai-codex"
   )
 
   for plugin in "${plugins[@]}"; do
