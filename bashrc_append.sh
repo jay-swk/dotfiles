@@ -64,6 +64,67 @@ command -v lazygit &>/dev/null && alias g='lazygit'
 command -v btop &>/dev/null && alias top='btop'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# --- Git aliases ---
+alias gs='git status -sb'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline --graph --decorate -20'
+alias gp='git pull'
+alias gps='git push'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gb='git branch'
+alias ga='git add'
+alias gaa='git add -A'
+alias gc='git commit -m'
+alias gca='git commit --amend'
+alias gst='git stash'
+alias gstp='git stash pop'
+
+# --- Safety aliases (원본은 유지, i-변형만 별칭으로) ---
+alias rmi='rm -i'
+alias cpi='cp -i'
+alias mvi='mv -i'
+
+# --- Quality-of-life ---
+alias reload='source ~/.bashrc && echo "🔄 bash 설정 재로드"'
+alias cls='clear'
+alias path='echo $PATH | tr ":" "\n"'
+alias ports='lsof -i -P -n | grep LISTEN'
+alias myip='curl -s ifconfig.me; echo'
+alias localip="ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null"
+alias weather='curl -s "wttr.in/Seoul?format=3"'
+alias now='date "+%Y-%m-%d %H:%M:%S"'
+
+# --- Functions ---
+# mkcd: 디렉토리 만들고 바로 진입
+mkcd() {
+    [ $# -lt 1 ] && { echo "사용법: mkcd <디렉토리>"; return 1; }
+    mkdir -p -- "$1" && cd -- "$1"
+}
+
+# extract: 거의 모든 압축파일 자동 해제
+extract() {
+    [ -z "$1" ] && { echo "사용법: extract <파일>"; return 1; }
+    [ ! -f "$1" ] && { echo "'$1' 파일을 찾을 수 없습니다"; return 1; }
+    case "$1" in
+        *.tar.bz2)   tar xjf "$1"   ;;
+        *.tar.gz)    tar xzf "$1"   ;;
+        *.tar.xz)    tar xJf "$1"   ;;
+        *.bz2)       bunzip2 "$1"   ;;
+        *.rar)       unrar x "$1"   ;;
+        *.gz)        gunzip "$1"    ;;
+        *.tar)       tar xf "$1"    ;;
+        *.tbz2)      tar xjf "$1"   ;;
+        *.tgz)       tar xzf "$1"   ;;
+        *.zip)       unzip "$1"     ;;
+        *.Z)         uncompress "$1";;
+        *.7z)        7z x "$1"      ;;
+        *)           echo "'$1'은 지원하지 않는 형식입니다" ;;
+    esac
+}
 
 # --- yazi (터미널 파일 탐색기) ---
 # y로 실행, 종료 시 탐색한 디렉토리로 자동 이동
@@ -79,5 +140,8 @@ function y() {
 # --- History improvements ---
 HISTSIZE=50000
 HISTFILESIZE=100000
+HISTCONTROL=ignoreboth:erasedups
 shopt -s histappend
+shopt -s checkwinsize
+shopt -s cdspell 2>/dev/null
 PROMPT_COMMAND="history -a;${PROMPT_COMMAND:-}"

@@ -74,10 +74,11 @@ install_cli_tools() {
             eza bat fd fzf ripgrep git-delta \
             lazygit btop dust zoxide ncdu duf \
             starship tldr tree jq micro tmux yazi \
+            zsh-autosuggestions zsh-syntax-highlighting zsh-completions \
             2>/dev/null || true
 
-        # fzf 키바인딩 설치
-        "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish 2>/dev/null || true
+        # fzf 키바인딩 설치 (bash + zsh 모두)
+        "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc 2>/dev/null || true
 
     else
         # --- apt 기본 도구 ---
@@ -160,6 +161,38 @@ install_cli_tools() {
 }
 
 # ============================================
+# 2.5 폰트 설치 (터미널 가독성)
+# ============================================
+install_fonts() {
+    echo ""
+    info "=== 폰트 설치 ==="
+    if [[ "$OS" == "mac" ]]; then
+        # D2Coding: 한글 고정폭 / JetBrainsMono Nerd Font: 아이콘
+        brew install --cask font-d2coding font-jetbrains-mono-nerd-font 2>/dev/null || true
+        info "D2Coding, JetBrainsMono Nerd Font 설치 완료 (또는 이미 설치됨)"
+    else
+        # Linux: 수동 설치
+        local font_dir="$HOME/.local/share/fonts"
+        mkdir -p "$font_dir"
+        if ! ls "$font_dir"/D2Coding* &>/dev/null; then
+            info "D2Coding 다운로드..."
+            wget -q "https://github.com/naver/d2codingfont/raw/master/D2CodingAll/D2Coding-Ver1.3.2-20180524-all.zip" -O /tmp/d2coding.zip
+            unzip -qo /tmp/d2coding.zip -d /tmp/d2coding
+            cp /tmp/d2coding/D2CodingAll/*.ttc "$font_dir/" 2>/dev/null || true
+            rm -rf /tmp/d2coding*
+        fi
+        if ! ls "$font_dir"/JetBrainsMono* &>/dev/null; then
+            info "JetBrainsMono Nerd Font 다운로드..."
+            wget -q "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip" -O /tmp/jbm.zip
+            unzip -qo /tmp/jbm.zip -d "$font_dir" '*.ttf' 2>/dev/null || true
+            rm -f /tmp/jbm.zip
+        fi
+        command -v fc-cache &>/dev/null && fc-cache -f "$font_dir" &>/dev/null
+        info "폰트 설치 완료: $font_dir"
+    fi
+}
+
+# ============================================
 # 3. 설정 파일 배포
 # ============================================
 deploy_configs() {
@@ -167,7 +200,26 @@ deploy_configs() {
     info "=== 설정 파일 배포 ==="
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # --- .bashrc 추가 ---
+    # --- 셸 감지 ---
+    local user_shell="$(basename "${SHELL:-/bin/bash}")"
+    info "사용자 셸 감지: $user_shell"
+
+    # --- .zshrc 추가 (zsh 사용자) ---
+    if [[ "$user_shell" == "zsh" ]]; then
+        if [[ ! -f ~/.zshrc ]]; then
+            touch ~/.zshrc
+            info ".zshrc 신규 생성"
+        fi
+        if ! grep -q "Modern CLI Tools Configuration (zsh" ~/.zshrc 2>/dev/null; then
+            info ".zshrc에 도구 설정 추가..."
+            cp ~/.zshrc ~/.zshrc.bak.$(date +%Y%m%d%H%M%S) 2>/dev/null || true
+            cat "$SCRIPT_DIR/zshrc_append.sh" >> ~/.zshrc
+        else
+            warn ".zshrc 설정 이미 존재 — 스킵"
+        fi
+    fi
+
+    # --- .bashrc 추가 (bash 사용자 또는 백업용) ---
     if ! grep -q "Modern CLI Tools Configuration" ~/.bashrc 2>/dev/null; then
         info ".bashrc에 도구 설정 추가..."
         cat "$SCRIPT_DIR/bashrc_append.sh" >> ~/.bashrc
@@ -191,6 +243,17 @@ deploy_configs() {
     mkdir -p ~/.config
     cp "$SCRIPT_DIR/starship.toml" ~/.config/starship.toml
     info "starship.toml 배포 완료"
+
+    # --- Ghostty config ---
+    if [[ -f "$SCRIPT_DIR/ghostty/config" ]]; then
+        mkdir -p ~/.config/ghostty
+        if [[ -f ~/.config/ghostty/config ]] && ! cmp -s "$SCRIPT_DIR/ghostty/config" ~/.config/ghostty/config; then
+            cp ~/.config/ghostty/config ~/.config/ghostty/config.bak
+            warn "기존 ghostty/config 백업 → config.bak"
+        fi
+        cp "$SCRIPT_DIR/ghostty/config" ~/.config/ghostty/config
+        info "ghostty/config 배포 완료"
+    fi
 
     # --- Claude Code 상태바 ---
     if command -v claude &>/dev/null; then
@@ -250,6 +313,19 @@ verify() {
         fi
     done
 
+    # zsh 플러그인 검증 (macOS만)
+    if [[ "$OS" == "mac" && "$(basename "${SHELL:-/bin/bash}")" == "zsh" ]]; then
+        local brew_prefix="$(brew --prefix 2>/dev/null)"
+        for plugin in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
+            if [[ -d "$brew_prefix/share/$plugin" ]]; then
+                info "$plugin"
+            else
+                error "$plugin — 미설치"
+                missing+=("$plugin")
+            fi
+        done
+    fi
+
     echo ""
     if [[ ${#missing[@]} -eq 0 ]]; then
         info "🎉 모든 도구 설치 완료!"
@@ -258,7 +334,8 @@ verify() {
     fi
 
     echo ""
-    warn "새 셸을 열거나 'source ~/.bashrc' 실행하면 모든 설정이 적용됩니다."
+    local user_shell="$(basename "${SHELL:-/bin/bash}")"
+    warn "새 셸을 열거나 'source ~/.${user_shell}rc' 실행하면 모든 설정이 적용됩니다."
 }
 
 # ============================================
@@ -273,6 +350,7 @@ main() {
     detect_os
     setup_package_manager
     install_cli_tools
+    install_fonts
     deploy_configs
     verify
 }

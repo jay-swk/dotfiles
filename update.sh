@@ -22,6 +22,22 @@ cp "$HOME/.claude/keybindings.json" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/setup-ecosystem.sh" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/mcp-auth-guard.sh" "$DOTFILES/claude/" 2>/dev/null || true
 
+# zshrc_append (쉘 설정의 Modern CLI 섹션만 추출)
+if [ -f "$HOME/.zshrc" ] && grep -q "Modern CLI Tools Configuration (zsh" "$HOME/.zshrc"; then
+    echo "  🐚 zsh (Modern CLI 섹션 추출)"
+    # "Modern CLI Tools Configuration (zsh" 마커 라인부터 파일 끝까지
+    awk '/Modern CLI Tools Configuration \(zsh/{found=1} found' "$HOME/.zshrc" \
+        | sed '1i\
+' > "$DOTFILES/zshrc_append.sh"
+fi
+
+# Ghostty config
+if [ -f "$HOME/.config/ghostty/config" ]; then
+    echo "  👻 Ghostty"
+    mkdir -p "$DOTFILES/ghostty"
+    cp "$HOME/.config/ghostty/config" "$DOTFILES/ghostty/config"
+fi
+
 echo ""
 cd "$DOTFILES"
 git add -A

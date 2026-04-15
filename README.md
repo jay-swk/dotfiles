@@ -6,8 +6,11 @@
 
 | 카테고리 | 내용 |
 |---------|------|
-| **터미널** | tmux (Dracula), starship 프롬프트, bash 도구 alias |
+| **터미널 에뮬레이터** | Ghostty (Dracula, D2Coding + JetBrainsMono Nerd Font) |
+| **셸** | zsh (미니멀, OMZ-free) + bash 호환. zsh-autosuggestions/syntax-highlighting/completions |
+| **프롬프트/멀티플렉서** | starship, tmux (Dracula) |
 | **CLI 도구** | eza, bat, fd, fzf, ripgrep, delta, lazygit, btop, dust, zoxide, yazi |
+| **폰트** | D2Coding (한글 고정폭) + JetBrainsMono Nerd Font (아이콘) |
 | **VSCode** | settings.json, keybindings.json, 확장 35개 |
 | **Claude Code** | settings.json, statusline, 플러그인 생태계 자동 셋업, MCP 인증 가드 |
 | **Antigravity** | Google Antigravity 에디터 확장 |
@@ -41,12 +44,15 @@ cd ~/dotfiles && git pull && ./install.sh
 
 ```
 dotfiles/
-├── bootstrap.sh        # CLI 도구 설치 + 터미널 설정 (메인)
+├── bootstrap.sh        # CLI 도구 + 폰트 + 셸(zsh/bash) + Ghostty 자동 셋업 (메인)
 ├── install.sh          # VSCode + Claude Code 설정 복사
 ├── update.sh           # 현재 설정 → dotfiles 내보내기
-├── bashrc_append.sh    # .bashrc 추가 설정 (alias, fzf, zoxide 등)
+├── zshrc_append.sh     # .zshrc 추가 설정 (OMZ 없이 brew 플러그인만)
+├── bashrc_append.sh    # .bashrc 추가 설정 (bash 사용자 백업용)
 ├── tmux.conf           # tmux 설정 (Dracula, 마우스, vi 모드)
 ├── starship.toml       # 프롬프트 설정
+├── ghostty/
+│   └── config          # Ghostty 터미널 설정 (Dracula, D2Coding)
 ├── claude/
 │   ├── settings.json        # Claude Code 설정 (플러그인 + 훅 포함)
 │   ├── statusline.sh        # 상태바 (이모지 게이지 + 비용 + 5h rate)
@@ -58,6 +64,38 @@ dotfiles/
 ├── install-antigravity.sh
 └── ANTIGRAVITY.md
 ```
+
+## 쉘 구성 철학 — 왜 OMZ를 안 쓰나?
+
+`oh-my-zsh`는 훌륭하지만 **쉘 시작이 느리고**(300~500ms), 현재 스택에서는 대부분 기능이 중복됩니다.
+대신 Homebrew로 꼭 필요한 3개만 직접 설치:
+
+| 패키지 | 역할 |
+|--------|------|
+| `zsh-autosuggestions` | 회색 힌트 자동완성 (→/End로 수락) |
+| `zsh-syntax-highlighting` | 명령어 색상 하이라이트 (오타·잘못된 명령 빨간색) |
+| `zsh-completions` | 자동완성 데이터베이스 확장 |
+
+프롬프트는 **starship**, 스마트 cd는 **zoxide**, 검색은 **fzf**가 담당 — OMZ 기능 대부분을 이미 커버합니다.
+결과: 쉘 시작 **5~10배 빠름**, 의존성 최소화.
+
+## 자주 쓰는 alias / 함수
+
+| 명령 | 설명 |
+|------|------|
+| `ll`, `la`, `lt` | eza 기반 ls 변형 (git 상태 포함) |
+| `g` | lazygit |
+| `gs`, `gd`, `gl`, `gp`, `gco`, `gc` | git status / diff / log / pull / checkout / commit |
+| `mkcd <dir>` | `mkdir -p && cd` 한 번에 |
+| `extract <file>` | zip/tar/gz/rar/7z 등 자동 해제 |
+| `y` | yazi 실행 후 종료한 경로로 자동 이동 |
+| `reload` | 쉘 설정 재로드 |
+| `path` | $PATH를 줄바꿈으로 보기 좋게 |
+| `ports` | LISTEN 중인 포트 목록 |
+| `myip` / `localip` | 공인 IP / 로컬 IP |
+| `rmi`, `cpi`, `mvi` | 확인 프롬프트 있는 안전 버전 |
+| `z <keyword>` | zoxide smart cd (히스토리 기반) |
+| `..`, `...`, `....` | 상위 디렉토리 이동 단축 |
 
 ## Claude Code 생태계
 

@@ -1,0 +1,44 @@
+# ==========================================
+# Ghostty Configuration
+# docs: https://ghostty.org/docs/config/reference
+# ==========================================
+
+# ---------- Font ----------
+# D2Coding: 한글 고정폭 (네이버 제작). bootstrap.sh에서 자동 설치.
+# JetBrainsMonoNF: Nerd Font 아이콘용 (starship 아이콘, 파일 아이콘 등).
+font-family = "D2Coding"
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+
+# ---------- Theme (Dracula) ----------
+# tmux/bat/delta와 색상 통일
+theme = Dracula
+
+# ---------- Window ----------
+window-padding-x = 12
+window-padding-y = 10
+window-padding-balance = true
+window-save-state = always
+background-opacity = 0.97
+macos-titlebar-style = tabs
+
+# ---------- Cursor ----------
+cursor-style = block
+cursor-style-blink = true
+shell-integration-features = cursor,sudo,title
+
+# ---------- Scrollback ----------
+scrollback-limit = 100000
+
+# ---------- Mouse ----------
+mouse-hide-while-typing = true
+copy-on-select = clipboard
+
+# ---------- Clipboard (기존 설정 유지) ----------
+clipboard-read = allow
+clipboard-write = allow
+clipboard-paste-protection = false
+
+# ---------- Keybindings ----------
+# ⌘+K: 화면 + 스크롤백 클리어
+keybind = super+k=clear_screen
