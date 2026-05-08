@@ -1,0 +1,15 @@
+# Curated Codex skills installed by codex/setup-ecosystem.sh.
+# One skill name per line. Blank lines and comments are ignored.
+
+gh-fix-ci
+gh-address-comments
+sentry
+security-best-practices
+security-threat-model
+notion-spec-to-implementation
+notion-knowledge-capture
+playwright
+playwright-interactive
+pdf
+transcribe
+cli-creator

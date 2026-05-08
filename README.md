@@ -13,6 +13,7 @@
 | **폰트** | D2Coding (한글 고정폭) + JetBrainsMono Nerd Font (아이콘) |
 | **VSCode** | settings.json, keybindings.json, 확장 35개 |
 | **Claude Code** | settings.json, statusline, 플러그인 생태계 자동 셋업, MCP 인증 가드 |
+| **Codex** | `/goal`, 추천 skills, 플러그인, Nova MCP 자동 셋업 |
 | **Antigravity** | Google Antigravity 에디터 확장 |
 
 ## 새 맥북 설정
@@ -24,7 +25,7 @@ git clone https://github.com/jay-swk/dotfiles.git ~/dotfiles
 # 2. 전체 CLI 도구 + 터미널 환경 구축
 bash ~/dotfiles/bootstrap.sh
 
-# 3. VSCode + Claude Code + 플러그인/MCP 한번에
+# 3. VSCode + Claude Code + Codex + 플러그인/MCP 한번에
 bash ~/dotfiles/install.sh
 ```
 
@@ -58,6 +59,9 @@ dotfiles/
 │   ├── statusline.sh        # 상태바 (이모지 게이지 + 비용 + 5h rate)
 │   ├── setup-ecosystem.sh   # 플러그인 + MCP 자동 설치
 │   └── mcp-auth-guard.sh    # MCP 인증 만료 자동 감지 훅
+├── codex/
+│   ├── setup-ecosystem.sh   # Codex CLI + /goal + 플러그인 + 스킬 자동 설치
+│   └── skills.txt           # 기본 설치할 curated skills 목록
 ├── vscode/
 │   ├── settings.json   # VSCode 에디터 설정
 │   └── extensions.txt  # 확장 목록
@@ -121,6 +125,39 @@ bash ~/.claude/setup-ecosystem.sh --auth
 
 # 전체 상태 확인 (설치 + 인증)
 bash ~/.claude/setup-ecosystem.sh --check
+```
+
+## Codex 생태계
+
+`install.sh` 실행 시 `~/.codex/setup-ecosystem.sh`와 `~/.codex/skills.txt`가 복사되고, Codex 환경이 자동 적용된다.
+
+| 구성 | 역할 |
+|------|------|
+| **/goal** | 장시간 목표 기반 작업을 추적하는 Codex experimental feature |
+| **Nova** | Codex에서도 plan/review/check 품질 게이트와 MCP 사용 |
+| **Browser Use** | 로컬 웹앱 브라우저 확인 |
+| **Slack** | Slack 요약/작성/triage |
+| **Documents/Spreadsheets/Presentations** | 문서·시트·덱 artifact 작업 |
+| **GitHub skills** | CI 실패 분석, PR 코멘트 대응 |
+| **Security skills** | 보안 베스트프랙티스, threat model |
+| **Notion skills** | 스펙 → 구현 계획, 지식 캡처 |
+| **Playwright skills** | 브라우저 자동화와 UI 디버깅 |
+
+```bash
+# 전체 Codex 환경 적용
+bash ~/.codex/setup-ecosystem.sh
+
+# 상태만 확인
+bash ~/.codex/setup-ecosystem.sh --check
+
+# curated skills만 설치/동기화
+bash ~/.codex/setup-ecosystem.sh --skills
+```
+
+기본 모델은 기존 설정이 없을 때만 `gpt-5.5` / `high`로 생성한다. 필요하면 실행 전에 환경변수로 바꿀 수 있다.
+
+```bash
+CODEX_MODEL=gpt-5.5 CODEX_REASONING=xhigh bash ~/.codex/setup-ecosystem.sh
 ```
 
 ## Claude Code 상태바 미리보기

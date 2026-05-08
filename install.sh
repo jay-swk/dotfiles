@@ -6,7 +6,7 @@ echo "🚀 개발 환경 동기화 시작..."
 
 # ─── VSCode ─────────────────────────────────────────────
 echo ""
-echo "📦 [1/3] VSCode 설정"
+echo "📦 [1/4] VSCode 설정"
 
 VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
 mkdir -p "$VSCODE_USER_DIR/snippets"
@@ -41,7 +41,7 @@ fi
 
 # ─── Claude Code ────────────────────────────────────────
 echo ""
-echo "🤖 [2/3] Claude Code 설정"
+echo "🤖 [2/4] Claude Code 설정"
 
 CLAUDE_DIR="$HOME/.claude"
 mkdir -p "$CLAUDE_DIR"
@@ -80,7 +80,7 @@ fi
 
 # ─── Claude Code Ecosystem ─────────────────────────────
 echo ""
-echo "🔌 [3/3] Claude Code 플러그인 + MCP 생태계"
+echo "🔌 [3/4] Claude Code 플러그인 + MCP 생태계"
 
 if command -v claude &>/dev/null; then
     bash "$CLAUDE_DIR/setup-ecosystem.sh"
@@ -89,6 +89,30 @@ else
     echo "     bash ~/.claude/setup-ecosystem.sh"
 fi
 
+# ─── Codex ──────────────────────────────────────────────
+echo ""
+echo "🧭 [4/4] Codex CLI + 스킬/플러그인"
+
+CODEX_DIR="$HOME/.codex"
+mkdir -p "$CODEX_DIR"
+
+if [ -f "$HOME/dotfiles/codex/setup-ecosystem.sh" ]; then
+    echo "  📁 setup-ecosystem.sh 복사"
+    cp "$HOME/dotfiles/codex/setup-ecosystem.sh" "$CODEX_DIR/setup-ecosystem.sh"
+    chmod +x "$CODEX_DIR/setup-ecosystem.sh"
+fi
+
+if [ -f "$HOME/dotfiles/codex/skills.txt" ]; then
+    echo "  📁 skills.txt 복사"
+    cp "$HOME/dotfiles/codex/skills.txt" "$CODEX_DIR/skills.txt"
+fi
+
+if [ -f "$CODEX_DIR/setup-ecosystem.sh" ]; then
+    bash "$CODEX_DIR/setup-ecosystem.sh"
+else
+    echo "  ⚠️  Codex 설정 스크립트 없음"
+fi
+
 echo ""
 echo "✅ 동기화 완료!"
-echo "💡 VSCode 재시작 + 새 claude 세션 시작 시 적용"
+echo "💡 VSCode 재시작 + 새 claude/codex 세션 시작 시 적용"

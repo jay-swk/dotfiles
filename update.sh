@@ -22,6 +22,12 @@ cp "$HOME/.claude/keybindings.json" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/setup-ecosystem.sh" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/mcp-auth-guard.sh" "$DOTFILES/claude/" 2>/dev/null || true
 
+# Codex
+echo "  🧭 Codex"
+mkdir -p "$DOTFILES/codex"
+cp "$HOME/.codex/setup-ecosystem.sh" "$DOTFILES/codex/" 2>/dev/null || true
+cp "$HOME/.codex/skills.txt" "$DOTFILES/codex/" 2>/dev/null || true
+
 # zshrc_append (쉘 설정의 Modern CLI 섹션만 추출)
 if [ -f "$HOME/.zshrc" ] && grep -q "Modern CLI Tools Configuration (zsh" "$HOME/.zshrc"; then
     echo "  🐚 zsh (Modern CLI 섹션 추출)"
