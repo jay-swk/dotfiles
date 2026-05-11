@@ -116,3 +116,7 @@ fi
 echo ""
 echo "✅ 동기화 완료!"
 echo "💡 VSCode 재시작 + 새 claude/codex 세션 시작 시 적용"
+echo ""
+echo "🔗 [옵션] SSH 원격 Claude Code 에 이미지 페이스트하고 싶다면:"
+echo "    bash ~/dotfiles/cc-clip/setup.sh --local           # Mac 한 번"
+echo "    bash ~/dotfiles/cc-clip/setup.sh --remote <host>   # 호스트별"

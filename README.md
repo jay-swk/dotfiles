@@ -14,6 +14,7 @@
 | **VSCode** | settings.json, keybindings.json, 확장 35개 |
 | **Claude Code** | settings.json, statusline, 플러그인 생태계 자동 셋업, MCP 인증 가드 |
 | **Codex** | `/goal`, 추천 skills, 플러그인, Nova MCP 자동 셋업 |
+| **cc-clip** | Claude Code 로컬↔SSH 이미지 페이스트 (옵션, 호스트별 수동 셋업) |
 | **Antigravity** | Google Antigravity 에디터 확장 |
 
 ## 새 맥북 설정
@@ -62,6 +63,9 @@ dotfiles/
 ├── codex/
 │   ├── setup-ecosystem.sh   # Codex CLI + /goal + 플러그인 + 스킬 자동 설치
 │   └── skills.txt           # 기본 설치할 curated skills 목록
+├── cc-clip/
+│   ├── setup.sh             # 로컬/원격 선택 셋업 (--local / --remote <host> / --check)
+│   └── README.md            # 동작 원리 + 함정 + 디버깅 가이드
 ├── vscode/
 │   ├── settings.json   # VSCode 에디터 설정
 │   └── extensions.txt  # 확장 목록
@@ -173,6 +177,24 @@ CODEX_MODEL=gpt-5.5 CODEX_REASONING=xhigh bash ~/.codex/setup-ecosystem.sh
 | 📊 토큰 | 입출력 토큰 (K 단위) |
 | 💰 비용 | API 환산 비용 (구독 포함, 참고용) |
 | ⏱️ 5h | 5시간 rate limit 사용률 |
+
+## cc-clip — SSH 원격 Claude Code 이미지 페이스트
+
+원격 SSH 서버의 Claude Code 에 로컬 Mac 클립보드 이미지를 **Ctrl+V** 로 페이스트하려면 별도 셋업이 필요하다. `install.sh` 에 포함되지 않은 옵션 도구 — 호스트별로 명시 실행.
+
+```bash
+# Mac (한 번)
+bash ~/dotfiles/cc-clip/setup.sh --local
+
+# 호스트별 (한 번씩)
+bash ~/dotfiles/cc-clip/setup.sh --remote <host>
+
+# 상태 확인 / 제거
+bash ~/dotfiles/cc-clip/setup.sh --check
+bash ~/dotfiles/cc-clip/setup.sh --uninstall local
+```
+
+자세한 동작 원리, 함정 6개 (포트 충돌·ControlMaster·tmux PATH 등), 디버깅 명령은 [`cc-clip/README.md`](cc-clip/README.md) 참고.
 
 ## 지원 OS
 
