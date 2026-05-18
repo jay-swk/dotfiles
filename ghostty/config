@@ -40,5 +40,16 @@ clipboard-write = allow
 clipboard-paste-protection = false
 
 # ---------- Keybindings ----------
-# ⌘+K: 화면 + 스크롤백 클리어
-keybind = super+k=clear_screen
+# 한글 IME 활성 상태에서도 Cmd 단축키가 동작하도록 명시적 매핑.
+# Ghostty는 기본적으로 W3C physical key 매핑을 쓰지만, macOS NSResponder가
+# IME 활성 시 일부 modifier 이벤트를 가로채는 케이스가 있어 unconsumed: 로 우회.
+# (tmux에서 raw 키가 잘 전달되는 것과 동일하게 만들어줌)
+keybind = unconsumed:super+c=copy_to_clipboard:mixed
+keybind = unconsumed:super+v=paste_from_clipboard
+keybind = unconsumed:super+a=select_all
+keybind = unconsumed:super+f=start_search
+keybind = unconsumed:super+t=new_tab
+keybind = unconsumed:super+n=new_window
+keybind = unconsumed:super+w=close_surface
+keybind = unconsumed:super+q=quit
+keybind = unconsumed:super+k=clear_screen
