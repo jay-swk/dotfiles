@@ -255,6 +255,17 @@ deploy_configs() {
         info "ghostty/config 배포 완료"
     fi
 
+    # --- bin/ scripts (tmc 등) → ~/.local/bin symlink ---
+    if [[ -d "$SCRIPT_DIR/bin" ]]; then
+        mkdir -p ~/.local/bin
+        for f in "$SCRIPT_DIR"/bin/*; do
+            [[ -f "$f" ]] || continue
+            chmod +x "$f"
+            ln -sf "$f" ~/.local/bin/"$(basename "$f")"
+        done
+        info "bin/* → ~/.local/bin 링크 완료"
+    fi
+
     # --- Claude Code 상태바 ---
     if command -v claude &>/dev/null; then
         info "Claude Code 상태바 설정..."

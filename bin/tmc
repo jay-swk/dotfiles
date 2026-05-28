@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# tmc — 현재 디렉토리에서 tmux 세션 + Claude Code 자동 실행
+#
+# 사용:
+#   tmc            현재 디렉토리 이름으로 세션 생성, claude 자동 실행
+#   tmc <이름>     지정 이름으로 세션 생성/attach
+#
+# 동작:
+#   - 같은 이름 세션이 이미 있으면 그냥 attach (claude 중복 실행 X)
+#   - 신규 세션은 detached 로 생성 → 셸에 `claude` 명령을 send-keys 로 주입 → attach
+#     덕분에 claude 종료해도 셸 프롬프트로 자연스럽게 복귀, tmux 세션은 유지
+#   - 이미 tmux 안에서 호출하면 새 윈도우만 추가
+#
+# 존재 이유: macOS 한글 IME 활성 상태에서 bare ghostty 는 Ctrl+V 가 IME 에
+# 흡수돼 Claude Code 이미지 paste 가 실패한다. tmux pane focus 상태에서는
+# ghostty 가 NSTextInput marked text 를 노출하지 않아 IME 가 hook 못 함 →
+# ctrl+v 가 raw 키로 전달돼 정상 동작.
+
+set -e
+
+CWD="$(pwd)"
+
+if [ -n "$1" ]; then
+  RAW="$1"
+else
+  RAW="$(basename "$CWD")"
+fi
+
+# tmux 세션 이름 sanitize: '.' ':' ' ' 등은 target lookup 깨짐
+NAME="$(printf '%s' "$RAW" | tr '.: ' '___' | tr -cd '[:alnum:]_-')"
+[ -z "$NAME" ] && NAME="claude"
+
+# 케이스 1: 이미 tmux 안 → 새 윈도우 추가
+if [ -n "$TMUX" ]; then
+  tmux new-window -c "$CWD" -n "$NAME"
+  tmux send-keys "claude" Enter
+  exit 0
+fi
+
+# 케이스 2: 같은 이름 세션 존재 → attach 만
+if tmux has-session -t "=$NAME" 2>/dev/null; then
+  exec tmux attach-session -t "=$NAME"
+fi
+
+# 케이스 3: 신규 세션 → detached 생성 후 claude 명령 주입 → attach
+tmux new-session -d -s "$NAME" -c "$CWD"
+tmux send-keys -t "$NAME" "claude" Enter
+exec tmux attach-session -t "$NAME"

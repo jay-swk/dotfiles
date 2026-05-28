@@ -32,7 +32,11 @@ scrollback-limit = 100000
 
 # ---------- Mouse ----------
 mouse-hide-while-typing = true
+# 드래그 선택 즉시 시스템 클립보드 복사 (tmux의 copy-pipe-and-cancel 'pbcopy'와 동일 효과).
 copy-on-select = clipboard
+# shift 는 마우스 프로토콜로 보내지 않음 → TUI 앱(Claude Code 등)이 마우스를 캡처해도
+# shift+드래그로 항상 텍스트 선택 가능. (tmux mouse on 상태에서도 drag 선택이 되는 것과 동일.)
+mouse-shift-capture = false
 
 # ---------- Clipboard (기존 설정 유지) ----------
 clipboard-read = allow
@@ -40,7 +44,7 @@ clipboard-write = allow
 clipboard-paste-protection = false
 
 # ---------- Keybindings ----------
-# 한글 IME 활성 상태에서도 Cmd 단축키가 동작하도록 명시적 매핑.
+# 한글 IME 활성 상태에서도 Cmd/Ctrl 단축키가 동작하도록 명시적 매핑.
 # Ghostty는 기본적으로 W3C physical key 매핑을 쓰지만, macOS NSResponder가
 # IME 활성 시 일부 modifier 이벤트를 가로채는 케이스가 있어 unconsumed: 로 우회.
 # (tmux에서 raw 키가 잘 전달되는 것과 동일하게 만들어줌)
@@ -53,3 +57,12 @@ keybind = unconsumed:super+n=new_window
 keybind = unconsumed:super+w=close_surface
 keybind = unconsumed:super+q=quit
 keybind = unconsumed:super+k=clear_screen
+
+# ---------- Ctrl+V IME 우회 (Claude Code 이미지 paste) ----------
+# 문제: bare ghostty(no tmux) + 한글 IME 활성 상태에서 Ctrl+V 가 IME 합성 윈도우에
+#       흡수돼 Claude Code 에 0x16 인코딩이 전달되지 않음 → 이미지 paste 불가.
+# 해결: ctrl+v 를 ghostty 단에서 명시 keybind 로 등록(=IME 가로채기 차단) 하고,
+#       text: 액션으로 ^V(0x16) raw 바이트를 stdin 에 직접 주입.
+# 주의: `unconsumed:ctrl+v=ignore` 는 동작하지 않음 — `ignore` 는 인코딩 forwarding
+#       까지 막아버리기 때문에 ctrl+v 가 영문 모드에서도 죽어버린다.
+keybind = ctrl+v=text:\x16
