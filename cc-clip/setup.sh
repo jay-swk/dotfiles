@@ -236,6 +236,94 @@ remove_marker_block() {
 }
 
 # ============================================
+# claude 바이너리 보호 가드
+# ============================================
+# 업스트림 'cc-clip connect' 의 claude 래퍼는 npm 설치를 가정한다.
+# Claude Code 네이티브 설치는 ~/.local/bin/claude 가 versions/<v> 로 가는
+# 심링크라, 래퍼 쓰기가 심링크를 따라가 진짜 바이너리(수백 MB)를 1KB 래퍼로
+# 덮어쓴다 → 'real claude binary not found in PATH'.
+# npm 설치엔 무해(no-op). 네이티브 설치에선 백업 + 클로버 시 자동 복구.
+
+guard_claude_binary_pre() {
+    local host="$1"
+    step "claude 바이너리 백업 (덮어쓰기 대비)..."
+    ssh "$host" 'bash -s' <<'GUARD_PRE' 2>/dev/null || warn "guard_pre: 원격 백업 스킵 (SSH/권한)"
+set -u
+BIN="$HOME/.local/bin/claude"
+VERS="$HOME/.local/share/claude/versions"
+[ -L "$BIN" ] || exit 0
+tgt="$(readlink -f "$BIN" 2>/dev/null || true)"
+case "$tgt" in "$VERS"/*) : ;; *) exit 0 ;; esac
+sz="$(stat -c%s "$tgt" 2>/dev/null || echo 0)"
+# 진짜 바이너리(>100KB)만 백업 — 래퍼(~1KB)는 무시
+if [ "$sz" -gt 100000 ]; then
+    cp -p "$tgt" "$VERS/.cc-clip-guard.realbak" 2>/dev/null && echo "[guard] real claude 백업 ($sz bytes)"
+fi
+GUARD_PRE
+}
+
+guard_claude_binary_post() {
+    local host="$1"
+    step "claude 바이너리 무결성 검사..."
+    local out
+    out=$(ssh "$host" 'bash -s' <<'GUARD_POST' 2>/dev/null
+set -u
+BIN="$HOME/.local/bin/claude"
+VERS="$HOME/.local/share/claude/versions"
+[ -e "$BIN" ] || { echo "clean"; exit 0; }
+# 네이티브 설치 시그니처 게이트: versions/ 디렉토리가 있어야 네이티브 설치다.
+# npm 등 다른 설치는 이 디렉토리가 없고, 래퍼가 BIN 에 regular file 로
+# 정상 설치되는 게 맞으므로(= cc-clip 본래 동작) 절대 건드리지 않는다.
+[ -d "$VERS" ] || { echo "clean"; exit 0; }
+tgt="$(readlink -f "$BIN" 2>/dev/null || echo "$BIN")"
+clob=0
+if [ -f "$tgt" ]; then
+    sz="$(stat -c%s "$tgt" 2>/dev/null || echo 0)"
+    [ "$sz" -lt 100000 ] && grep -qa "cc-clip claude wrapper" "$tgt" 2>/dev/null && clob=1
+fi
+if [ "$clob" -ne 1 ]; then
+    rm -f "$VERS/.cc-clip-guard.realbak" 2>/dev/null || true
+    echo "clean"; exit 0
+fi
+# 클로버 감지 — 래퍼를 옆으로 치우고 복구
+mv -f "$tgt" "$tgt.cc-clip-clobbered.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+# 1순위: versions/ 의 다른 정상 ELF 로 심링크 재연결
+newest=""
+for f in "$VERS"/*; do
+    [ -f "$f" ] || continue
+    case "$f" in *.realbak|*.bak|*cc-clip-clobbered*) continue ;; esac
+    fsz="$(stat -c%s "$f" 2>/dev/null || echo 0)"
+    [ "$fsz" -gt 100000 ] || continue
+    { [ -z "$newest" ] || [ "$f" -nt "$newest" ]; } && newest="$f"
+done
+if [ -n "$newest" ]; then
+    ln -sfn "$newest" "$BIN"
+    rm -f "$VERS/.cc-clip-guard.realbak" 2>/dev/null || true
+    echo "repaired:relinked:$newest"; exit 0
+fi
+# 2순위: pre 백업 복원
+if [ -f "$VERS/.cc-clip-guard.realbak" ]; then
+    cp -p "$VERS/.cc-clip-guard.realbak" "$tgt" 2>/dev/null \
+        && { rm -f "$VERS/.cc-clip-guard.realbak"; echo "repaired:restored-backup:$tgt"; exit 0; }
+fi
+echo "FAILED"
+GUARD_POST
+) || true
+    case "$out" in
+        clean)
+            info "claude 바이너리 정상 (래퍼가 안 건드림)" ;;
+        repaired:*)
+            warn "cc-clip 가 claude 바이너리를 덮어써서 자동 복구함:"
+            echo "    ${out#repaired:}"
+            warn "알림 훅(Stop/Notification)은 미설치 — 이미지 붙여넣기(xclip shim)는 정상 동작" ;;
+        FAILED)
+            error "claude 바이너리 덮어써짐 + 복구 실패 — 원격에서 'claude' 재실행 시 네이티브 업데이터가 재설치" ;;
+        *)
+            warn "guard_post: 상태 불명(SSH 실패?) — 원격 'claude --version' 수동 확인 권장" ;;
+    esac
+}
+
+# ============================================
 # 원격 셋업
 # ============================================
 setup_remote() {
@@ -299,6 +387,9 @@ setup_remote() {
         fi
     fi
 
+    # 가드: cc-clip connect 가 네이티브 claude 바이너리를 덮어쓰기 전 백업
+    guard_claude_binary_pre "$host"
+
     # cc-clip connect 위임 — 바이너리/shim/토큰/deploy.json/PATH/Claude hook 자동 처리
     # (SSH config 는 안 만짐 → 우리 마커 시스템과 공존)
     step "cc-clip connect $host 실행 (전체 배포)..."
@@ -306,6 +397,9 @@ setup_remote() {
         error "cc-clip connect 실패"
         return 1
     fi
+
+    # 가드: connect 가 claude 바이너리를 덮어썼는지 검사 + 클로버 시 자동 복구
+    guard_claude_binary_post "$host"
 
     # SSH config 에 마커 블록 추가 (cc-clip 이 안 만지므로 우리가 관리)
     step "SSH config 에 마커 블록 추가..."

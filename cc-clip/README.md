@@ -103,13 +103,14 @@ bash setup.sh --uninstall remote <host>
 - `CC_CLIP_VERSION` — 강제 버전 (기본 latest)
 - `CC_CLIP_UPGRADE=1` — 이미 설치돼도 재다운로드
 
-## 알려진 함정 5개
+## 알려진 함정 6개
 
 1. **같은 서버에 동시 접속 시 18339 충돌** — 위 표 참고. 두 번째 세션의 `RemoteForward` 가 silent fail. 회피: `CC_CLIP_PORT=18340 bash setup.sh --remote <host>` 로 호스트별 다른 포트.
 2. **`ControlMaster` 강제 off** — cc-clip 마커 블록은 `ControlMaster no` 를 강제. 기존 SSH multiplexing 설정과 충돌 가능 — 필요 시 다른 alias 로 분리.
 3. **xclip race condition** — Claude Code 가 xclip 을 subprocess 로 spawn 하는 PTY race 가 원인 ([#42712](https://github.com/anthropics/claude-code/issues/42712)). cc-clip 의 lockfile 로 회피하지만 >5MB 큰 이미지나 빠른 연타 페이스트 시 간헐 실패 — 재시도하면 됨.
 4. **원격 PATH 누락** — `~/.local/bin` 이 원격 셸 PATH 에 없으면 xclip shim 호출 실패 ("command not found"). setup.sh 가 `--remote` 시 자동으로 `~/.bashrc` + `~/.profile` 에 PATH 라인을 멱등 추가하지만, **기존 ssh 세션은 .bashrc 변경을 못 봄** → 새 ssh 세션을 열어야 적용. tmux 안에서 `default-shell` 이 비대화형이면 별도로 `setenv -g PATH ...` 도 필요.
 5. **GIF / SVG / HEIC 미지원** — PNG 만. 스크린샷 위주면 무관.
+6. **네이티브 설치 claude 바이너리 덮어쓰기** — 업스트림 `cc-clip connect` 의 claude 래퍼는 npm 설치를 가정한다. Claude Code 네이티브 설치는 `~/.local/bin/claude` 가 `~/.local/share/claude/versions/<v>` 로 가는 심링크라, 래퍼 쓰기가 심링크를 따라가 **진짜 바이너리(수백 MB)를 1KB 래퍼로 덮어쓴다** → `cc-clip: real claude binary not found in PATH`. **이 setup.sh 는 `--remote` 시 자동 방어**: `cc-clip connect` 전에 바이너리를 백업하고, 직후 덮어쓰기를 감지하면 래퍼를 옆으로 치운 뒤 `versions/` 의 정상 바이너리로 심링크를 자동 복구한다 (npm 설치엔 no-op). 단, 알림 훅(Stop/Notification) 주입은 포기 — 이미지 붙여넣기(xclip shim)는 무관하게 정상.
 
 (이전 "토큰 30일 만료" 항목은 setup.sh 가 첫 셋업 시 자동 sync 하고 `--check` 가 남은 일수를 항상 표시하므로 제거)
 
