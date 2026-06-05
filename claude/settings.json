@@ -1,6 +1,7 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "NOVA_COEXIST": "1"
   },
   "permissions": {
     "allow": [
@@ -13,16 +14,6 @@
     ],
     "defaultMode": "bypassPermissions"
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh"
-  },
-  "enabledPlugins": {
-    "figma@claude-plugins-official": true,
-    "nova@nova-marketplace": true,
-    "codex@openai-codex": true,
-    "context7@claude-plugins-official": true
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -31,10 +22,26 @@
           {
             "type": "command",
             "command": "bash ~/.claude/mcp-auth-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/cmux-detect.sh"
           }
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
+  },
+  "enabledPlugins": {
+    "figma@claude-plugins-official": true,
+    "nova@nova-marketplace": true,
+    "codex@openai-codex": true,
+    "context7@claude-plugins-official": true,
+    "claude-notifications-go@claude-notifications-go": true,
+    "oh-my-claudecode@omc": true
   },
   "extraKnownMarketplaces": {
     "nova-marketplace": {
@@ -48,10 +55,26 @@
         "source": "github",
         "repo": "openai/codex-plugin-cc"
       }
+    },
+    "claude-notifications-go": {
+      "source": {
+        "source": "github",
+        "repo": "777genius/claude-notifications-go"
+      }
+    },
+    "omc": {
+      "source": {
+        "source": "github",
+        "repo": "Yeachan-Heo/oh-my-claudecode"
+      },
+      "autoUpdate": true
     }
   },
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
   "teammateMode": "tmux",
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
   "agentTeams": {
     "display": "split-panes"
   }

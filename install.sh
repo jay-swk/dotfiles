@@ -72,6 +72,27 @@ if [ -f "$HOME/dotfiles/claude/mcp-auth-guard.sh" ]; then
     chmod +x "$CLAUDE_DIR/mcp-auth-guard.sh"
 fi
 
+if [ -f "$HOME/dotfiles/claude/cmux-detect.sh" ]; then
+    echo "  📁 cmux-detect.sh 복사"
+    cp "$HOME/dotfiles/claude/cmux-detect.sh" "$CLAUDE_DIR/cmux-detect.sh"
+    chmod +x "$CLAUDE_DIR/cmux-detect.sh"
+fi
+
+if [ -f "$HOME/dotfiles/claude/CLAUDE.md" ]; then
+    echo "  📁 CLAUDE.md (글로벌 개인 규칙) 복사"
+    cp "$HOME/dotfiles/claude/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
+fi
+
+# OMC HUD statusline 스크립트 (settings.json statusLine 이 참조)
+if [ -d "$HOME/dotfiles/claude/hud" ]; then
+    echo "  📁 OMC HUD 스크립트 복사"
+    mkdir -p "$CLAUDE_DIR/hud/lib"
+    cp "$HOME/dotfiles/claude/hud/omc-hud.mjs" "$CLAUDE_DIR/hud/omc-hud.mjs"
+    chmod +x "$CLAUDE_DIR/hud/omc-hud.mjs"
+    [ -f "$HOME/dotfiles/claude/hud/lib/config-dir.mjs" ] && \
+        cp "$HOME/dotfiles/claude/hud/lib/config-dir.mjs" "$CLAUDE_DIR/hud/lib/config-dir.mjs"
+fi
+
 if [ -f "$HOME/dotfiles/claude/setup-ecosystem.sh" ]; then
     echo "  📁 setup-ecosystem.sh 복사"
     cp "$HOME/dotfiles/claude/setup-ecosystem.sh" "$CLAUDE_DIR/setup-ecosystem.sh"

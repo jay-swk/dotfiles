@@ -38,6 +38,9 @@ install_plugins() {
   # 마켓플레이스 등록
   local marketplaces=(
     "nova-marketplace:TeamSPWK/nova"
+    "openai-codex:openai/codex-plugin-cc"
+    "claude-notifications-go:777genius/claude-notifications-go"
+    "omc:Yeachan-Heo/oh-my-claudecode"
   )
 
   for entry in "${marketplaces[@]}"; do
@@ -57,6 +60,9 @@ install_plugins() {
     "nova@nova-marketplace"
     "figma@claude-plugins-official"
     "context7@claude-plugins-official"
+    "codex@openai-codex"
+    "claude-notifications-go@claude-notifications-go"
+    "oh-my-claudecode@omc"
   )
 
   for plugin in "${plugins[@]}"; do

@@ -21,6 +21,14 @@ cp "$HOME/.claude/statusline.sh" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/keybindings.json" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/setup-ecosystem.sh" "$DOTFILES/claude/" 2>/dev/null || true
 cp "$HOME/.claude/mcp-auth-guard.sh" "$DOTFILES/claude/" 2>/dev/null || true
+cp "$HOME/.claude/cmux-detect.sh" "$DOTFILES/claude/" 2>/dev/null || true
+cp "$HOME/.claude/CLAUDE.md" "$DOTFILES/claude/" 2>/dev/null || true
+# OMC HUD statusline 스크립트
+if [ -d "$HOME/.claude/hud" ]; then
+    mkdir -p "$DOTFILES/claude/hud/lib"
+    cp "$HOME/.claude/hud/omc-hud.mjs" "$DOTFILES/claude/hud/" 2>/dev/null || true
+    cp "$HOME/.claude/hud/lib/config-dir.mjs" "$DOTFILES/claude/hud/lib/" 2>/dev/null || true
+fi
 
 # Codex
 echo "  🧭 Codex"
