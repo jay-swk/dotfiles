@@ -45,18 +45,17 @@ clipboard-paste-protection = false
 
 # ---------- Keybindings ----------
 # 한글 IME 활성 상태에서도 Cmd/Ctrl 단축키가 동작하도록 명시적 매핑.
-# Ghostty는 기본적으로 W3C physical key 매핑을 쓰지만, macOS NSResponder가
-# IME 활성 시 일부 modifier 이벤트를 가로채는 케이스가 있어 unconsumed: 로 우회.
-# (tmux에서 raw 키가 잘 전달되는 것과 동일하게 만들어줌)
-keybind = unconsumed:super+c=copy_to_clipboard:mixed
-keybind = unconsumed:super+v=paste_from_clipboard
-keybind = unconsumed:super+a=select_all
-keybind = unconsumed:super+f=start_search
-keybind = unconsumed:super+t=new_tab
-keybind = unconsumed:super+n=new_window
-keybind = unconsumed:super+w=close_surface
-keybind = unconsumed:super+q=quit
-keybind = unconsumed:super+k=clear_screen
+# 주의: unconsumed: prefix 는 동작 수행 후 키 입력을 터미널로 그대로 흘려보내므로
+#       Cmd+C/Cmd+V 뒤에 c/v 문자가 같이 입력된다. 기본값(consumed)이어야 키를 삼킨다.
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
+keybind = super+a=select_all
+keybind = super+f=start_search
+keybind = super+t=new_tab
+keybind = super+n=new_window
+keybind = super+w=close_surface
+keybind = super+q=quit
+keybind = super+k=clear_screen
 
 # ---------- Ctrl+V IME 우회 (Claude Code 이미지 paste) ----------
 # 문제: bare ghostty(no tmux) + 한글 IME 활성 상태에서 Ctrl+V 가 IME 합성 윈도우에
