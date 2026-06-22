@@ -93,6 +93,14 @@ if [ -d "$HOME/dotfiles/claude/hud" ]; then
         cp "$HOME/dotfiles/claude/hud/lib/config-dir.mjs" "$CLAUDE_DIR/hud/lib/config-dir.mjs"
 fi
 
+# Stop 훅: idle teammate 리퍼 (끝난 sub-agent tmux 팀원 자동 종료, settings.json Stop 이 참조)
+if [ -d "$HOME/dotfiles/claude/hooks" ]; then
+    echo "  📁 hooks (idle-teammate 리퍼) 복사"
+    mkdir -p "$CLAUDE_DIR/hooks"
+    cp "$HOME/dotfiles/claude/hooks/"*.mjs "$CLAUDE_DIR/hooks/" 2>/dev/null || true
+    chmod +x "$CLAUDE_DIR/hooks/"*.mjs 2>/dev/null || true
+fi
+
 if [ -f "$HOME/dotfiles/claude/setup-ecosystem.sh" ]; then
     echo "  📁 setup-ecosystem.sh 복사"
     cp "$HOME/dotfiles/claude/setup-ecosystem.sh" "$CLAUDE_DIR/setup-ecosystem.sh"

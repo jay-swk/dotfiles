@@ -29,6 +29,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/reap-idle-teammates.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
