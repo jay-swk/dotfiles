@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Codex CLI ecosystem setup.
-# Reproducible defaults for skills, plugins, MCP, and experimental /goal.
+# Reproducible defaults for permissions, skills, plugins, MCP, and /goal.
 #
 # Usage:
 #   bash ~/.codex/setup-ecosystem.sh
@@ -20,8 +20,10 @@ CODEX_DIR="$HOME/.codex"
 CONFIG_FILE="$CODEX_DIR/config.toml"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_FILE="$SCRIPT_DIR/skills.txt"
-DEFAULT_MODEL="${CODEX_MODEL:-gpt-5.5}"
+DEFAULT_MODEL="${CODEX_MODEL:-gpt-5.6-sol}"
 DEFAULT_REASONING="${CODEX_REASONING:-high}"
+DEFAULT_APPROVAL_POLICY="${CODEX_APPROVAL_POLICY:-never}"
+DEFAULT_SANDBOX_MODE="${CODEX_SANDBOX_MODE:-danger-full-access}"
 
 info() { echo -e "  ${GREEN}✓${NC} $1"; }
 warn() { echo -e "  ${YELLOW}!${NC} $1"; }
@@ -134,6 +136,10 @@ ensure_config() {
   toml_set "" "model_reasoning_effort" "\"$DEFAULT_REASONING\"" false
   info "기본 모델 설정 확인: $DEFAULT_MODEL / $DEFAULT_REASONING"
 
+  toml_set "" "approval_policy" "\"$DEFAULT_APPROVAL_POLICY\"" true
+  toml_set "" "sandbox_mode" "\"$DEFAULT_SANDBOX_MODE\"" true
+  warn "권한 설정 적용: $DEFAULT_APPROVAL_POLICY / $DEFAULT_SANDBOX_MODE"
+
   if codex features list 2>/dev/null | awk '$1 == "goals" {print $3}' | grep -q '^true$'; then
     info "/goal 이미 활성화됨"
   else
@@ -178,17 +184,32 @@ enable_plugins() {
   setup_nova_marketplace
 
   local plugins=(
-    "nova@nova-marketplace"
-    "browser-use@openai-bundled"
-    "slack@openai-curated"
     "documents@openai-primary-runtime"
+    "pdf@openai-primary-runtime"
     "spreadsheets@openai-primary-runtime"
     "presentations@openai-primary-runtime"
+    "template-creator@openai-primary-runtime"
+    "sites@openai-bundled"
+    "browser@openai-bundled"
+    "chrome@openai-bundled"
+    "visualize@openai-bundled"
+    "gmail@openai-curated"
+    "slack@openai-curated"
+    "codex-security@openai-curated"
   )
+  local installed_plugins
+  installed_plugins="$(codex plugin list 2>/dev/null | awk '$2 ~ /^installed/ {print $1}')"
 
   for plugin in "${plugins[@]}"; do
-    toml_set "plugins.\"$plugin\"" "enabled" "true" true
-    info "$plugin enabled"
+    if grep -qx "$plugin" <<<"$installed_plugins"; then
+      toml_set "plugins.\"$plugin\"" "enabled" "true" true
+      info "$plugin already installed, enabled"
+    elif codex plugin add "$plugin" --json >/dev/null 2>&1; then
+      info "$plugin installed, enabled"
+    else
+      warn "$plugin 설치 실패 - enabled 설정만 반영"
+      toml_set "plugins.\"$plugin\"" "enabled" "true" true
+    fi
   done
 }
 
@@ -266,7 +287,13 @@ print_summary() {
     codex --version 2>/dev/null | sed 's/^/  /'
     echo ""
     echo "Features:"
-    codex features list 2>/dev/null | awk '$1 == "goals" || $1 == "plugins" || $1 == "browser_use" || $1 == "multi_agent" || $1 == "tool_search" {print "  " $0}'
+    codex features list 2>/dev/null | awk '$1 == "goals" || $1 == "plugins" || $1 == "browser_use" || $1 == "multi_agent" || $1 == "apps" || $1 == "hooks" {print "  " $0}'
+    echo ""
+    echo "Permissions:"
+    awk -F' *= *' '$1 == "approval_policy" || $1 == "sandbox_mode" {print "  " $1 " = " $2}' "$CONFIG_FILE"
+    echo ""
+    echo "Plugins:"
+    codex plugin list 2>/dev/null | awk '$2 ~ /^installed/ {print "  " $1}'
     echo ""
     echo "MCP:"
     codex mcp list 2>/dev/null | sed 's/^/  /' || true

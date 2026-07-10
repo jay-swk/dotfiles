@@ -137,11 +137,15 @@ bash ~/.claude/setup-ecosystem.sh --check
 
 | 구성 | 역할 |
 |------|------|
-| **/goal** | 장시간 목표 기반 작업을 추적하는 Codex experimental feature |
+| **/goal** | 장시간 목표 기반 작업 추적 |
+| **Full local access** | 승인 없이 로컬 명령을 실행하는 `never` + `danger-full-access` 기본값 |
 | **Nova** | Codex에서도 plan/review/check 품질 게이트와 MCP 사용 |
-| **Browser Use** | 로컬 웹앱 브라우저 확인 |
+| **Browser / Chrome** | 로컬 웹앱 확인과 기존 Chrome 세션 자동화 |
 | **Slack** | Slack 요약/작성/triage |
-| **Documents/Spreadsheets/Presentations** | 문서·시트·덱 artifact 작업 |
+| **Gmail** | Gmail 검색·요약·작성 |
+| **Documents/PDF/Spreadsheets/Presentations** | 문서·PDF·시트·덱 artifact 작업 |
+| **Sites/Visualize** | 웹사이트와 인터랙티브 시각화 생성 |
+| **Codex Security** | 코드베이스·diff 보안 스캔과 취약점 검증 |
 | **GitHub skills** | CI 실패 분석, PR 코멘트 대응 |
 | **Security skills** | 보안 베스트프랙티스, threat model |
 | **Notion skills** | 스펙 → 구현 계획, 지식 캡처 |
@@ -158,10 +162,12 @@ bash ~/.codex/setup-ecosystem.sh --check
 bash ~/.codex/setup-ecosystem.sh --skills
 ```
 
-기본 모델은 기존 설정이 없을 때만 `gpt-5.5` / `high`로 생성한다. 필요하면 실행 전에 환경변수로 바꿀 수 있다.
+기본 모델은 기존 설정이 없을 때만 `gpt-5.6-sol` / `high`로 생성한다. 권한 기본값은 `never` / `danger-full-access`로 매번 동기화한다. 이 조합은 로컬 파일·네트워크 명령을 승인 없이 실행할 수 있으므로 신뢰하는 개인 머신에서만 사용한다.
 
 ```bash
-CODEX_MODEL=gpt-5.5 CODEX_REASONING=xhigh bash ~/.codex/setup-ecosystem.sh
+CODEX_MODEL=gpt-5.6-sol CODEX_REASONING=xhigh \
+CODEX_APPROVAL_POLICY=never CODEX_SANDBOX_MODE=danger-full-access \
+bash ~/.codex/setup-ecosystem.sh
 ```
 
 ## Claude Code 상태바 미리보기
