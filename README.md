@@ -16,6 +16,7 @@
 | **Codex** | `/goal`, 추천 skills, 플러그인, Nova MCP 자동 셋업 |
 | **cc-clip** | Claude Code 로컬↔SSH 이미지 페이스트 (옵션, 호스트별 수동 셋업) |
 | **Antigravity** | Google Antigravity 에디터 확장 |
+| **Claude Usage Tracker** | Claude usage 메뉴바 모니터 (멀티 계정 프로필, cask 설치 + 수동 셋업) |
 
 ## 새 맥북 설정
 
@@ -201,6 +202,18 @@ bash ~/dotfiles/cc-clip/setup.sh --uninstall local
 ```
 
 자세한 동작 원리, 함정 6개 (포트 충돌·ControlMaster·tmux PATH 등), 디버깅 명령은 [`cc-clip/README.md`](cc-clip/README.md) 참고.
+
+## Claude Usage Tracker — 멀티 계정 (메뉴바 usage 모니터)
+
+`bootstrap.sh` 가 cask (`hamed-elfayome/claude-usage/claude-usage-tracker`) 를 설치한다. 세션키·CLI 크리덴셜은 시크릿이라 앱에서 **수동 등록** — dotfiles 에 저장하지 않는다.
+
+계정마다 프로필(예: jay, swk)을 만들고, **프로필 전환 시 로컬 `claude` CLI 계정도 같이 바뀌게** 하려면 순서가 중요하다:
+
+1. `claude auth login` 으로 **해당 계정** 로그인 → `claude auth status` 로 확인
+2. 앱에서 **그 프로필을 활성**으로 둔 채 `CLI Account → Sync from Claude Code`
+3. 계정마다 1~2 반복
+
+> ⚠️ "Sync from Claude Code" 는 *현재 CLI 에 로그인된 계정* 을 *활성 프로필* 로 캡처한다. 한 계정으로 로그인된 채 두 프로필을 sync 하면 **둘 다 그 계정**이 되어 전환이 안 된다. (`claude auth status` 로 매번 확인)
 
 ## 지원 OS
 

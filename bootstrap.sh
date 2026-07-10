@@ -193,6 +193,32 @@ install_fonts() {
 }
 
 # ============================================
+# 2.6 macOS 앱 (메뉴바/GUI, cask)
+# ============================================
+install_mac_apps() {
+    [[ "$OS" == "mac" ]] || return 0
+    echo ""
+    info "=== macOS 앱 설치 ==="
+
+    # Claude Usage Tracker — Claude usage 메뉴바 모니터 (멀티 계정 프로필)
+    brew install --cask hamed-elfayome/claude-usage/claude-usage-tracker 2>/dev/null || true
+    info "Claude Usage Tracker 설치 완료 (또는 이미 설치됨)"
+
+    # 세션키/CLI 크리덴셜은 시크릿 → dotfiles 에 안 담음. 아래는 앱 GUI 수동 셋업 안내.
+    cat <<'SETUP'
+
+  [수동 셋업] Claude Usage Tracker 멀티 계정:
+    1. Settings → Manage Profiles → 계정마다 프로필 생성 (예: jay, swk)
+    2. 각 프로필 활성 상태로 Settings → Claude.AI → "Sign in to Claude.ai" (usage 표시용 세션키)
+    3. 프로필 전환 시 로컬 `claude` 계정도 같이 바꾸려면 — "계정별 로그인 → 그 프로필에서 Sync" 순서 준수:
+         a) claude auth login   (해당 계정으로 로그인) → claude auth status 로 확인
+         b) 앱에서 그 프로필을 활성으로 두고 CLI Account → "Sync from Claude Code"
+         c) 계정마다 a~b 반복
+       ⚠️ 한 계정으로 로그인된 채 두 프로필을 Sync 하면 둘 다 그 계정으로 잡힘 (전환 안 됨).
+SETUP
+}
+
+# ============================================
 # 3. 설정 파일 배포
 # ============================================
 deploy_configs() {
@@ -362,6 +388,7 @@ main() {
     setup_package_manager
     install_cli_tools
     install_fonts
+    install_mac_apps
     deploy_configs
     verify
 }
