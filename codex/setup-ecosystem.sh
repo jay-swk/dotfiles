@@ -34,7 +34,7 @@ ensure_dir() {
 }
 
 install_codex_cli() {
-  echo -e "\n${BLUE}[1/5] Codex CLI${NC}"
+  echo -e "\n${BLUE}[1/4] Codex CLI${NC}"
 
   if command -v codex >/dev/null 2>&1; then
     info "$(codex --version 2>/dev/null | tail -1)"
@@ -129,7 +129,7 @@ PY
 }
 
 ensure_config() {
-  echo -e "\n${BLUE}[2/5] Codex 기본 설정${NC}"
+  echo -e "\n${BLUE}[2/4] Codex 기본 설정${NC}"
   ensure_dir
 
   toml_set "" "model" "\"$DEFAULT_MODEL\"" false
@@ -152,36 +152,8 @@ ensure_config() {
   fi
 }
 
-setup_nova_marketplace() {
-  if grep -q '^\[marketplaces\.nova-marketplace\]' "$CONFIG_FILE" 2>/dev/null; then
-    info "Nova marketplace 이미 등록됨"
-    return 0
-  fi
-
-  local local_nova="$HOME/develop/nova"
-  if [[ -d "$local_nova/.codex-plugin" ]]; then
-    if codex plugin marketplace add "$local_nova" >/dev/null 2>&1; then
-      info "Nova marketplace 등록: $local_nova"
-      return 0
-    fi
-
-    warn "Codex marketplace CLI 등록 실패 - local path를 직접 반영"
-    toml_set "marketplaces.nova-marketplace" "source_type" '"local"' true
-    toml_set "marketplaces.nova-marketplace" "source" "\"$local_nova\"" true
-    return 0
-  fi
-
-  if codex plugin marketplace add TeamSPWK/nova >/dev/null 2>&1; then
-    info "Nova marketplace 등록: TeamSPWK/nova"
-  else
-    warn "Nova marketplace 등록 실패 - GitHub 권한 또는 네트워크 확인 필요"
-  fi
-}
-
 enable_plugins() {
-  echo -e "\n${BLUE}[3/5] Codex 플러그인${NC}"
-
-  setup_nova_marketplace
+  echo -e "\n${BLUE}[3/4] Codex 플러그인${NC}"
 
   local plugins=(
     "documents@openai-primary-runtime"
@@ -211,22 +183,6 @@ enable_plugins() {
       toml_set "plugins.\"$plugin\"" "enabled" "true" true
     fi
   done
-}
-
-setup_mcp_servers() {
-  echo -e "\n${BLUE}[4/5] Codex MCP${NC}"
-
-  local nova_server="$HOME/develop/nova/mcp-server/dist/index.js"
-  if [[ -f "$nova_server" ]]; then
-    if codex mcp list 2>/dev/null | awk '{print $1}' | grep -qx "nova"; then
-      info "nova MCP 이미 등록됨"
-    else
-      codex mcp add nova -- node "$nova_server" >/dev/null
-      info "nova MCP 등록"
-    fi
-  else
-    warn "Nova MCP 서버 없음: $nova_server"
-  fi
 }
 
 install_one_skill() {
@@ -260,7 +216,7 @@ install_one_skill() {
 }
 
 install_skills() {
-  echo -e "\n${BLUE}[5/5] Codex curated skills${NC}"
+  echo -e "\n${BLUE}[4/4] Codex curated skills${NC}"
 
   if [[ ! -f "$SKILLS_FILE" ]]; then
     warn "skills.txt 없음: $SKILLS_FILE"
@@ -329,7 +285,6 @@ main() {
       install_codex_cli
       ensure_config
       enable_plugins
-      setup_mcp_servers
       install_skills
       print_summary
       ;;
