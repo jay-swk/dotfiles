@@ -107,6 +107,13 @@ if [ -f "$HOME/dotfiles/claude/setup-ecosystem.sh" ]; then
     chmod +x "$CLAUDE_DIR/setup-ecosystem.sh"
 fi
 
+# Claude Usage Tracker (메뉴바 usage 모니터) — macOS cask, 멱등.
+# 동기화(install.sh) 경로에도 포함되도록 여기서 보장. 멀티계정 수동 셋업 안내는 bootstrap.sh 참고.
+if command -v brew &>/dev/null; then
+    echo "  📊 Claude Usage Tracker (cask)"
+    brew install --cask hamed-elfayome/claude-usage/claude-usage-tracker 2>/dev/null || true
+fi
+
 # ─── Claude Code Ecosystem ─────────────────────────────
 echo ""
 echo "🔌 [3/4] Claude Code 플러그인 + MCP 생태계"
