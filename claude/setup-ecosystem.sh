@@ -63,7 +63,6 @@ install_plugins() {
     "codex@openai-codex"
     "claude-notifications-go@claude-notifications-go"
     "oh-my-claudecode@omc"
-    "security-guidance@claude-plugins-official"
     "plugin-dev@claude-plugins-official"
     "skill-creator@claude-plugins-official"
     "semgrep@claude-plugins-official"
